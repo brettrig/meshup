@@ -28,5 +28,15 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>MeshUp uses Bluetooth to connect to your Meshtastic radio and exchange messages.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>MeshUp uses Bluetooth to connect to your Meshtastic radio and exchange messages.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>MeshUp can match mesh contacts to your phone's address book to show their real name.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>bluetooth-central</string>
+	</array>
 </dict>
 </plist>

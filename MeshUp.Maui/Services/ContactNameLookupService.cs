@@ -75,7 +75,9 @@ public class ContactNameLookupService
 
             var index = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-            var contacts = await Contacts.GetAllAsync();
+            // Fully-qualified because on iOS/MacCatalyst the platform binding namespace "Contacts"
+            // (from the native Contacts framework) shadows the MAUI Essentials Contacts class.
+            var contacts = await Microsoft.Maui.ApplicationModel.Communication.Contacts.Default.GetAllAsync();
             if (contacts is not null)
             {
                 foreach (var contact in contacts)
