@@ -56,6 +56,32 @@ public class ChatNotificationService
         _chatService.DirectMessageReceived += OnDirectMessageReceived;
 
         LocalNotificationCenter.Current.NotificationActionTapped += OnNotificationActionTapped;
+
+        // Proactively prompt for the notification permission (required on Android 13+) at
+        // startup, rather than requiring the user to dig into system Settings to enable it
+        // manually - most users just tap "Allow" on the OS prompt.
+        _ = RequestNotificationPermissionAsync();
+    }
+
+    private static async Task RequestNotificationPermissionAsync()
+    {
+        try
+        {
+            // Permissions.CheckStatusAsync/RequestAsync must be invoked from the UI thread.
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                var status = await Permissions.CheckStatusAsync<NotificationPermission>();
+                if (status != PermissionStatus.Granted)
+                {
+                    await Permissions.RequestAsync<NotificationPermission>();
+                }
+            });
+        }
+        catch
+        {
+            // Best-effort only; if the platform/OS version doesn't support this permission
+            // request, notifications either don't require it or the OS handles it itself.
+        }
     }
 
     private void OnEveryoneMessageReceived(object? sender, ChatMessage message)

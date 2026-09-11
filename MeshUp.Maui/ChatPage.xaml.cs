@@ -49,6 +49,11 @@ public partial class ChatPage : ContentPage
             {
                 ToolbarItems.Remove(FavouriteToolbarItem);
             }
+
+            if (ToolbarItems.Contains(EchoToolbarItem))
+            {
+                ToolbarItems.Remove(EchoToolbarItem);
+            }
         }
         else
         {
@@ -61,7 +66,13 @@ public partial class ChatPage : ContentPage
                 ToolbarItems.Add(FavouriteToolbarItem);
             }
 
+            if (_contact is not null && !ToolbarItems.Contains(EchoToolbarItem))
+            {
+                ToolbarItems.Add(EchoToolbarItem);
+            }
+
             UpdateFavouriteToolbarText();
+            UpdateEchoToolbarText();
         }
 
         _chatService.ContactUpdated += OnContactUpdated;
@@ -95,6 +106,7 @@ public partial class ChatPage : ContentPage
         {
             Title = contact.DisplayName;
             UpdateFavouriteToolbarText();
+            UpdateEchoToolbarText();
         });
     }
 
@@ -214,6 +226,22 @@ public partial class ChatPage : ContentPage
     private void UpdateFavouriteToolbarText()
     {
         FavouriteToolbarItem.Text = _contact?.IsFavourite == true ? "Unlike" : "Like";
+    }
+
+    private void OnEchoClicked(object? sender, EventArgs e)
+    {
+        if (_contact is null)
+        {
+            return;
+        }
+
+        _chatService.ToggleEcho(_contact);
+        UpdateEchoToolbarText();
+    }
+
+    private void UpdateEchoToolbarText()
+    {
+        EchoToolbarItem.Text = _contact?.IsEcho == true ? "Echo: On" : "Echo: Off";
     }
 
     private void ClearReply()
