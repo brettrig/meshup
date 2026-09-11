@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ble="clr-namespace:Plugin.BLE.Abstractions.Contracts;assembly=Plugin.BLE"
+             x:Class="MeshUp.Maui.SetupPage"
+             Title="Connect your radio">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+
+            <Label Text="Connect your Meshtastic radio"
+                   FontSize="22"
+                   FontAttributes="Bold" />
+            <Label Text="Scan for nearby radios, pick yours, then connect."
+                   TextColor="Gray"
+                   FontSize="14" />
+
+            <Border Padding="16" StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Spacing="12">
+                    <HorizontalStackLayout Spacing="10">
+                        <Button x:Name="ScanButton" Text="Scan for devices" Clicked="OnScanClicked" />
+                        <Button x:Name="ConnectButton" Text="Connect" Clicked="OnConnectClicked" IsEnabled="False" />
+                        <Button x:Name="DisconnectButton" Text="Disconnect" Clicked="OnDisconnectClicked" IsEnabled="False" />
+                        <ActivityIndicator x:Name="BusyIndicator" IsRunning="False" IsVisible="False" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <CollectionView x:Name="DevicesList"
+                                     SelectionMode="Single"
+                                     SelectionChanged="OnDeviceSelected"
+                                     HeightRequest="220">
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="6">
+                                <Label Text="No devices found yet" TextColor="Gray" HorizontalOptions="Center" />
+                                <Label Text="Tap 'Scan for devices' to search" TextColor="Gray" FontSize="12" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="ble:IDevice">
+                                <Border Padding="12,10" StrokeShape="RoundRectangle 8" Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}">
+                                    <Label Text="{Binding Name}" FontAttributes="Bold" />
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Padding="14" StrokeShape="RoundRectangle 12">
+                <Label x:Name="StatusLabel"
+                       Text="Not connected"
+                       LineBreakMode="WordWrap" />
+            </Border>
+
+            <Button x:Name="DoneButton"
+                    Text="Done - go to chats"
+                    Clicked="OnDoneClicked"
+                    IsEnabled="False"
+                    HorizontalOptions="Fill" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:MeshUp.Maui.Models"
+             x:Class="MeshUp.Maui.ChatsListPage"
+             Title="Chats">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Connect radio" Clicked="OnSetupClicked" />
+    </ContentPage.ToolbarItems>
+
+    <Grid Padding="12" RowDefinitions="Auto,*" RowSpacing="12">
+
+        <Border Grid.Row="0"
+                x:Name="ConnectionBanner"
+                Padding="14,10"
+                Stroke="OrangeRed"
+                StrokeShape="RoundRectangle 10"
+                BackgroundColor="#1AFF4500"
+                IsVisible="False">
+            <HorizontalStackLayout Spacing="10">
+                <Label Text="&#9888;" TextColor="OrangeRed" FontSize="16" VerticalOptions="Center" />
+                <Label Text="Not connected. Tap 'Connect radio' to get started."
+                       TextColor="OrangeRed"
+                       VerticalOptions="Center"
+                       LineBreakMode="WordWrap" />
+            </HorizontalStackLayout>
+        </Border>
+
+        <CollectionView Grid.Row="1" x:Name="ThreadsList" SelectionMode="Single" SelectionChanged="OnThreadSelected">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8" Padding="20">
+                    <Label Text="&#128172;" FontSize="36" HorizontalOptions="Center" />
+                    <Label Text="No conversations yet" FontAttributes="Bold" FontSize="16" HorizontalOptions="Center" />
+                    <Label Text="Connect a radio to start chatting on the mesh."
+                           TextColor="Gray"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Contact">
+                    <Grid Padding="12,10" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Border Grid.Column="0"
+                                WidthRequest="44"
+                                HeightRequest="44"
+                                Padding="0"
+                                StrokeShape="RoundRectangle 22"
+                                Stroke="Transparent"
+                                BackgroundColor="{StaticResource Primary}"
+                                VerticalOptions="Center">
+                            <Label Text="{Binding Initials}"
+                                   TextColor="White"
+                                   FontAttributes="Bold"
+                                   FontSize="16"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   HorizontalTextAlignment="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <HorizontalStackLayout Spacing="4">
+                                <Label Text="{Binding DisplayName}" FontAttributes="Bold" FontSize="16" />
+                                <Label Text="&#9733;" FontSize="14" TextColor="Goldenrod" IsVisible="{Binding IsFavourite}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <Label Text="{Binding LastMessagePreview}"
+                                   TextColor="Gray"
+                                   FontSize="13"
+                                   LineBreakMode="TailTruncation" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+
+</ContentPage>

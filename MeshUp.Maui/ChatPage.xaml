@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:MeshUp.Maui.Models"
+             xmlns:converters="clr-namespace:MeshUp.Maui.Converters"
+             x:Class="MeshUp.Maui.ChatPage"
+             Title="Chat">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="FavouriteToolbarItem" Text="Like" Clicked="OnFavouriteClicked" />
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.Resources>
+        <converters:BoolToAlignmentConverter x:Key="BoolToAlignmentConverter" />
+        <converters:BoolToBubbleColorConverter x:Key="BoolToBubbleColorConverter" />
+    </ContentPage.Resources>
+
+    <Grid Padding="10" RowDefinitions="*,Auto,Auto" RowSpacing="8">
+
+        <CollectionView Grid.Row="0"
+                        x:Name="MessagesList"
+                        VerticalScrollBarVisibility="Never"
+                        ItemsUpdatingScrollMode="KeepLastItemInView">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:ChatMessage">
+                    <Grid Padding="4,6" ColumnDefinitions="*,*">
+                        <Border Padding="12,8"
+                                StrokeShape="RoundRectangle 14"
+                                StrokeThickness="0"
+                                MaximumWidthRequest="280"
+                                HorizontalOptions="{Binding IsMine, Converter={StaticResource BoolToAlignmentConverter}}"
+                                BackgroundColor="{Binding IsMine, Converter={StaticResource BoolToBubbleColorConverter}}"
+                                Grid.ColumnSpan="2">
+                            <VerticalStackLayout Spacing="3">
+                                <Label Text="{Binding SenderName}"
+                                       IsVisible="{Binding IsFromSomeoneElse}"
+                                       FontAttributes="Bold"
+                                       FontSize="11"
+                                       TextColor="#7A000000" />
+
+                                <Border IsVisible="{Binding HasQuote}"
+                                        Padding="8,4"
+                                        StrokeThickness="0"
+                                        BackgroundColor="#14000000"
+                                        StrokeShape="RoundRectangle 8">
+                                    <VerticalStackLayout Spacing="1">
+                                        <Label Text="{Binding QuotedSenderName}" FontAttributes="Bold" FontSize="11" TextColor="#99000000" />
+                                        <Label Text="{Binding QuotedText}" FontSize="12" TextColor="#99000000" LineBreakMode="TailTruncation" MaxLines="2" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <Label Text="{Binding DisplayText}" LineBreakMode="WordWrap" TextColor="Black" FontSize="15" />
+
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="{Binding Timestamp, StringFormat='{0:t}'}" FontSize="10" TextColor="#66000000" VerticalOptions="Center" />
+                                    <Label Grid.Column="1" Text="&#8617; Reply" FontSize="11" TextColor="#66000000" Padding="8,2" VerticalOptions="Center">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnReplyTapped" CommandParameter="{Binding .}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Border Grid.Row="1"
+                x:Name="ReplyPreviewBar"
+                IsVisible="False"
+                Padding="10,6"
+                StrokeShape="RoundRectangle 10"
+                Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
+                BackgroundColor="#14000000">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <VerticalStackLayout Grid.Column="0" Spacing="1">
+                    <Label x:Name="ReplyPreviewSender" FontAttributes="Bold" FontSize="12" />
+                    <Label x:Name="ReplyPreviewText" FontSize="12" TextColor="Gray" LineBreakMode="TailTruncation" MaxLines="1" />
+                </VerticalStackLayout>
+                <Label Grid.Column="1" Text="&#10005;" FontSize="14" VerticalOptions="Center" TextColor="Gray">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCancelReplyTapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2"
+                Padding="14,4"
+                StrokeShape="RoundRectangle 22"
+                Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Entry Grid.Column="0"
+                       x:Name="MessageEntry"
+                       Placeholder="Message"
+                       BackgroundColor="Transparent"
+                       HorizontalOptions="FillAndExpand"
+                       Completed="OnSendClicked" />
+                <Button Grid.Column="1"
+                        x:Name="SendButton"
+                        Text="Send"
+                        Padding="16,8"
+                        Clicked="OnSendClicked" />
+            </Grid>
+        </Border>
+
+    </Grid>
+
+</ContentPage>
