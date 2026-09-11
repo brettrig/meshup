@@ -7,6 +7,7 @@
              Title="Chat">
 
     <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="EchoToolbarItem" Text="Echo: Off" Clicked="OnEchoClicked" />
         <ToolbarItem x:Name="FavouriteToolbarItem" Text="Like" Clicked="OnFavouriteClicked" />
     </ContentPage.ToolbarItems>
 

@@ -20,6 +20,7 @@ public partial class ChatsListPage : ContentPage
 
     private readonly ObservableCollection<Contact> _threads = new();
     private bool _hasAttemptedAutoReconnect;
+    private bool _hasLoadedHistory;
 
     public ChatsListPage(MeshtasticChatService chatService)
     {
@@ -48,11 +49,48 @@ public partial class ChatsListPage : ContentPage
         base.OnAppearing();
         UpdateConnectionBanner();
 
+        if (!_hasLoadedHistory)
+        {
+            _hasLoadedHistory = true;
+            _ = LoadHistoryAsync();
+        }
+
         if (!_hasAttemptedAutoReconnect && !_chatService.IsConnected)
         {
             _hasAttemptedAutoReconnect = true;
             _ = AutoReconnectAsync();
         }
+    }
+
+    /// <summary>
+    /// Restores persisted contacts/messages from local storage (see
+    /// <see cref="MeshtasticChatService.LoadHistoryAsync"/>) and refreshes the thread list to
+    /// reflect them. Must run before contacts are otherwise relied upon (e.g. auto-reconnect
+    /// updating node info), so it's kicked off first on the initial appearance.
+    /// </summary>
+    private async Task LoadHistoryAsync()
+    {
+        try
+        {
+            await _chatService.LoadHistoryAsync();
+        }
+        catch
+        {
+            // Best-effort restore; a failure here shouldn't prevent the app from being usable.
+        }
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            foreach (var contact in _chatService.Contacts)
+            {
+                if (!_threads.Contains(contact))
+                {
+                    _threads.Add(contact);
+                }
+            }
+
+            SortThreads();
+        });
     }
 
     /// <summary>

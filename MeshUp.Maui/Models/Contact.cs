@@ -15,6 +15,7 @@ public class Contact : INotifyPropertyChanged
     private string? _lastMessagePreview;
     private DateTimeOffset? _lastMessageAt;
     private bool _isFavourite;
+    private bool _isEcho;
 
     public Contact(uint nodeNum)
     {
@@ -70,6 +71,17 @@ public class Contact : INotifyPropertyChanged
     {
         get => _isFavourite;
         set => SetField(ref _isFavourite, value, nameof(IsFavourite));
+    }
+
+    /// <summary>
+    /// When true, any message received from this contact is immediately sent back to them
+    /// unmodified (with an "Echo: " prefix). Intended for testing mesh range between two
+    /// devices without needing a human on the other end. Not persisted across app restarts.
+    /// </summary>
+    public bool IsEcho
+    {
+        get => _isEcho;
+        set => SetField(ref _isEcho, value, nameof(IsEcho));
     }
 
     /// <summary>Friendly display name for the contact, never showing raw node numbers unless nothing else is known.</summary>

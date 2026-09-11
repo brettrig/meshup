@@ -23,6 +23,7 @@ public class MeshtasticChatService
     private readonly Dictionary<uint, Contact> _contactsByNodeNum = new();
 
     private uint? _myNodeNum;
+    private Task? _loadHistoryTask;
 
     public MeshtasticChatService(MeshtasticBleService bleService, ContactNameLookupService contactNameLookupService, ChatHistoryStore historyStore)
     {
@@ -40,8 +41,16 @@ public class MeshtasticChatService
     /// <summary>
     /// Restores previously persisted contacts and messages from local storage, so chat history
     /// survives app restarts/redeploys. Should be called once at app startup, before connecting.
+    /// Safe to call multiple times (e.g. from a page's OnAppearing firing more than once): the
+    /// underlying load only ever runs once per app session, since this service is a singleton
+    /// and re-running it would duplicate every contact and message.
     /// </summary>
-    public async Task LoadHistoryAsync()
+    public Task LoadHistoryAsync()
+    {
+        return _loadHistoryTask ??= LoadHistoryCoreAsync();
+    }
+
+    private async Task LoadHistoryCoreAsync()
     {
         var contactRecords = await _historyStore.LoadContactsAsync();
         foreach (var record in contactRecords)
@@ -245,6 +254,17 @@ public class MeshtasticChatService
         ContactUpdated?.Invoke(this, contact);
     }
 
+    /// <summary>
+    /// Toggles "echo" mode for a contact: while enabled, any message received from them is
+    /// immediately sent back unmodified, which is handy for testing mesh range between two
+    /// devices. Not persisted; resets to off on app restart.
+    /// </summary>
+    public void ToggleEcho(Contact contact)
+    {
+        contact.IsEcho = !contact.IsEcho;
+        ContactUpdated?.Invoke(this, contact);
+    }
+
     private void OnMyNodeInfoReceived(object? sender, MyNodeInfo info)
     {
         _myNodeNum = info.MyNodeNum;
@@ -350,5 +370,12 @@ public class MeshtasticChatService
         contact.LastMessageAt = chatMessage.Timestamp;
         PersistContact(contact);
         DirectMessageReceived?.Invoke(this, (contact, chatMessage));
+
+        // Echo mode: bounce the message straight back to whoever sent it, for range testing
+        // between two devices. Only applies to messages we actually received (not our own sends).
+        if (!isMine && contact.IsEcho)
+        {
+            _ = SendToContactAsync(contact, $"Echo: {message.Text}");
+        }
     }
 }
